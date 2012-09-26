@@ -1,64 +1,65 @@
-#include <vector>
-#include <string>
-#include <iterator>
+#include <cstdio>
 #include <iostream>
+#include <math.h>
+#include <string>
+#include <list>
+#include <sstream>
+#include <assert.h>
 
 
 int N_LETTERS;
-char alphabet[62];
+const int BASE = 62;
+char alphabet[BASE+1] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-int gen_all_words(int);
-void Print(std::vector<std::string> &);
+void gen_all_words(int);
+std::string join_list(std::list<char>);
+std::string decimal_to_base62(int);
+
 
 int main() {
-  int i = 0;
-  for (char l = 'A'; l <= 'Z'; ++l) {
-    alphabet[i] = l;
-    ++i;
-  }
-  for (char l = 'a'; l <= 'z'; ++l) {
-    alphabet[i] = l;
-    ++i;
-  }
-  for (char l = '0'; l <= '9'; ++l) {
-    alphabet[i] = l;
-    ++i;
-  }
-  N_LETTERS = i;
-  std::cout << "Total letters to try: " << N_LETTERS << std::endl;
-  int len = gen_all_words(2);
-  std::cout << "Total combinatios" << len << std::endl;
+  gen_all_words(2);
 
   return 0;
 }
 
-int gen_all_words(int length)
-{
-  std::vector<int> index(length, 0);
-  int len = 0;
 
-  while(true)
-  {
-    std::string word(length, ' ');
-    for (int i = 0; i < length; ++i)
-      word[i] = alphabet[index[i]];
-    std::cout << word << std::endl;
-    len++;
+std::string decimal_to_base62(int wet) {
+  std::list<char> base62;
+  char letter;
+  int pos;
+  while (wet >= BASE) {
+    pos = wet % BASE;
+    letter = alphabet[pos];
+    base62.push_front(letter);
+    wet /= BASE;
+  }
+  letter = alphabet[wet];
+  base62.push_front(letter);
+  std::string word = join_list(base62);
 
-    for (int i = length-1; ; --i)
-    { 
-      if (i < 0)
-        return len; 
-      index[i]++;
-      if (index[i] == N_LETTERS)
-        index[i] = 0;
-      else
-        break;
-    }
+  return word;
+}
+
+
+std::string join_list(std::list<char> list) {
+  std::stringstream ss;
+  for(std::list<char>::iterator list_iter = list.begin(); 
+      list_iter != list.end(); list_iter++) {
+    ss << *list_iter;
+  }
+  return ss.str();
+}
+
+
+void gen_all_words(int length) {
+  assert(length > 0);
+  int total_words = pow(BASE, length);
+  int start = pow(BASE, length-1);
+  std::cout << "Total combinations" << total_words << std::endl;
+  std::cout << "start" << start << std::endl;
+  for (int i=start; i !=  total_words; ++i) {
+    std::string word = decimal_to_base62(i);
+    printf("%s\n", word.c_str());
   }
 }
 
-void Print(std::vector<std::string> & Vec) {
-  for (std::vector<std::string>::iterator p= Vec.begin(); p != Vec.end(); p++)
-    std::cout << *p <<  std::endl;
-}
